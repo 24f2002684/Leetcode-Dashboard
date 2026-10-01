@@ -3,101 +3,344 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>LeetCode Advisor Dashboard</title>
+<title>LeetCode Advisor — Live Ephemeral Dashboard</title>
 <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700&display=swap" rel="stylesheet">
 <link href="css/style.css" rel="stylesheet">
+<style>
+  body { font-family: 'Plus Jakarta Sans', sans-serif; }
+</style>
 </head>
 <body>
 
-<nav class="navbar navbar-expand-lg">
+<!-- Navigation Bar -->
+<nav class="navbar navbar-expand-lg sticky-top">
   <div class="container-fluid px-4">
-    <span class="navbar-brand">📊 LeetCode Advisor Dashboard</span>
-    <div class="d-flex gap-2">
-      <a href="contests.html" class="btn btn-outline-light btn-sm">Contest Report</a>
-      <a href="upload.html" class="btn btn-outline-light btn-sm">Upload Student List</a>
-      <button id="refreshBtn" class="btn btn-accent btn-sm">Refresh Data</button>
-      <a href="/api/export" class="btn btn-outline-light btn-sm">Download Excel</a>
+    <div class="d-flex align-items-center gap-3">
+      <span class="navbar-brand mb-0 h1">📊 LeetCode Advisor</span>
+      <span class="badge badge-tag d-none d-sm-inline-block">🔒 Ephemeral Mode (In-Memory)</span>
+    </div>
+    
+    <div class="d-flex align-items-center gap-2" id="navActions">
+      <input type="file" id="navFileInput" accept=".xlsx,.xls" class="d-none">
+      <button id="navUploadBtn" class="btn btn-outline-light btn-sm d-none">
+        📂 Upload New Sheet
+      </button>
+      <button id="exportBtn" class="btn btn-accent btn-sm d-none">
+        📥 Download Excel
+      </button>
+      <button id="resetBtn" class="btn btn-outline-danger btn-sm d-none" title="Clear current session like a calculator">
+        ↺ Reset
+      </button>
     </div>
   </div>
 </nav>
 
-<div class="container-fluid px-4 py-4">
+<div class="container-fluid px-4 py-4" style="max-width: 1400px;">
 
-  <div class="row g-3 mb-2" id="statCards"></div>
-
-  <div class="row g-3 mt-1 mb-4" id="statCards2"></div>
-
-  <div class="row g-3 mb-4">
-    <div class="col-lg-4">
-      <div class="chart-box h-100">
-        <h6 class="mb-3">Solved Breakdown (avg per student)</h6>
-        <canvas id="pieChart" height="220"></canvas>
-      </div>
-    </div>
-    <div class="col-lg-4">
-      <div class="chart-box h-100">
-        <h6 class="mb-3">Top 10 Ratings</h6>
-        <canvas id="barChart" height="220"></canvas>
-      </div>
-    </div>
-    <div class="col-lg-4">
-      <div class="chart-box h-100">
-        <div class="d-flex justify-content-between align-items-center mb-3">
-          <h6 class="mb-0">Latest Contest</h6>
-          <a href="contests.html" class="small">Full report →</a>
+  <!-- SECTION 1: WELCOME & UPLOAD (Calculator Initial State) -->
+  <div id="uploadSection" class="py-5">
+    <div class="row justify-content-center">
+      <div class="col-lg-7 col-md-9 text-center">
+        
+        <div class="mb-4">
+          <h2 class="fw-bold mb-2">Student LeetCode Analyzer</h2>
+          <p class="text-muted">
+            Upload your student Excel sheet to fetch live rankings, solved counts, and contest performance.
+            <br>
+            <span class="text-info-emphasis small">⚡ Purely temporary — zero data saved to any server database. Refreshing clears everything like a calculator.</span>
+          </p>
         </div>
-        <div id="latestContestBox" class="text-muted small">Loading...</div>
+
+        <div class="dropzone mb-4" id="dropzone">
+          <input type="file" id="fileInput" accept=".xlsx,.xls" class="d-none">
+          <span class="icon">📑</span>
+          <h5 class="fw-semibold mb-1">Drag & drop your Excel sheet here</h5>
+          <p class="text-muted small mb-3">Supports .xlsx and .xls formats</p>
+          <button class="btn btn-accent px-4 py-2" onclick="document.getElementById('fileInput').click()">
+            Browse Files
+          </button>
+        </div>
+
+        <!-- Format Requirements Card -->
+        <div class="panel text-start mb-4">
+          <div class="d-flex justify-content-between align-items-center mb-2">
+            <span class="small text-muted fw-semibold">REQUIRED EXCEL COLUMNS (IN ANY ORDER):</span>
+            <a href="/api/sample-template" class="small" download>📥 Download Starter Template</a>
+          </div>
+          <div class="table-responsive mb-0">
+            <table class="table table-sm table-bordered mb-0">
+              <thead>
+                <tr>
+                  <th>Student Name</th>
+                  <th>Register No</th>
+                  <th>Leetcode ID</th>
+                </tr>
+              </thead>
+              <tbody class="text-muted small">
+                <tr><td>Rahul S</td><td>23CS001</td><td>rahul123</td></tr>
+                <tr><td>Arun K</td><td>23CS002</td><td>arun_vit</td></tr>
+                <tr><td>Priya M</td><td>23CS003</td><td>priya_dev</td></tr>
+              </tbody>
+            </table>
+          </div>
+        </div>
+
+        <!-- Demo button -->
+        <div class="d-flex justify-content-center gap-2">
+          <button id="sampleDemoBtn" class="btn btn-outline-light btn-sm">
+            ✨ Test with Sample Students
+          </button>
+        </div>
+
       </div>
     </div>
   </div>
 
-  <div class="panel">
-    <div class="d-flex flex-wrap gap-2 justify-content-between align-items-center mb-3">
-      <h6 class="mb-0">Student List</h6>
-      <div class="d-flex gap-2">
-        <input id="searchBox" class="form-control form-control-sm" style="width:220px" placeholder="Search name / username...">
-        <select id="ratingFilter" class="form-select form-select-sm" style="width:150px">
-          <option value="0">All Ratings</option>
-          <option value="1200">1200+</option>
-          <option value="1500">1500+</option>
-          <option value="1800">1800+</option>
-          <option value="2000">2000+</option>
-        </select>
-        <select id="statusFilter" class="form-select form-select-sm" style="width:150px">
-          <option value="all">All Status</option>
-          <option value="ok">Fetched OK</option>
-          <option value="pending">Pending</option>
-          <option value="error">Error</option>
-        </select>
+  <!-- SECTION 2: LIVE PROGRESS SCREEN -->
+  <div id="progressSection" class="py-5 d-none">
+    <div class="row justify-content-center">
+      <div class="col-lg-6 col-md-8">
+        <div class="progress-container text-center">
+          <div class="spinner-border text-primary mb-3" role="status"></div>
+          <h5 class="fw-bold mb-1" id="progressTitle">Analyzing Student Roster...</h5>
+          <p class="text-muted small mb-3" id="progressStatus">Connecting to LeetCode API...</p>
+
+          <div class="progress-bar-custom mb-2">
+            <div class="progress-bar-fill" id="progressBar" style="width: 0%;"></div>
+          </div>
+          <div class="d-flex justify-content-between text-muted small">
+            <span id="progressCount">0 / 0 fetched</span>
+            <span id="progressPercent">0%</span>
+          </div>
+        </div>
       </div>
     </div>
-    <div class="table-responsive">
-      <table class="table table-hover align-middle" id="studentTable">
-        <thead>
-          <tr>
-            <th data-key="name">Name</th>
-            <th data-key="register_no">Register No</th>
-            <th data-key="leetcode_username">Username</th>
-            <th data-key="rating">Rating</th>
-            <th data-key="ranking">Global Rank</th>
-            <th data-key="easy_solved">Easy</th>
-            <th data-key="medium_solved">Medium</th>
-            <th data-key="hard_solved">Hard</th>
-            <th data-key="total_solved">Total Solved</th>
-            <th data-key="fetch_status">Status</th>
-          </tr>
-        </thead>
-        <tbody id="studentTableBody"></tbody>
-      </table>
+  </div>
+
+  <!-- SECTION 3: FULL DASHBOARD SCREEN -->
+  <div id="dashboardSection" class="d-none">
+
+    <!-- KPI Cards Row 1 -->
+    <div class="row g-3 mb-2" id="statCards"></div>
+
+    <!-- KPI Cards Row 2 -->
+    <div class="row g-3 mt-1 mb-4" id="statCards2"></div>
+
+    <!-- Visual Charts Row -->
+    <div class="row g-3 mb-4">
+      <div class="col-lg-4">
+        <div class="chart-box h-100">
+          <h6 class="mb-3">Solved Breakdown (Class Avg)</h6>
+          <canvas id="pieChart" height="220"></canvas>
+        </div>
+      </div>
+      <div class="col-lg-4">
+        <div class="chart-box h-100">
+          <h6 class="mb-3">Top 10 Contest Ratings</h6>
+          <canvas id="barChart" height="220"></canvas>
+        </div>
+      </div>
+      <div class="col-lg-4">
+        <div class="chart-box h-100">
+          <div class="d-flex justify-content-between align-items-center mb-3">
+            <h6 class="mb-0">Latest Contest Overview</h6>
+            <button class="btn btn-link btn-sm p-0 text-decoration-none" onclick="switchTab('contestsTab')">View Report →</button>
+          </div>
+          <div id="latestContestBox" class="text-muted small">Loading...</div>
+        </div>
+      </div>
     </div>
+
+    <!-- Navigation Tabs -->
+    <ul class="nav nav-tabs-custom mb-3" id="viewTabs" role="tablist">
+      <li class="nav-item">
+        <button class="nav-link active" id="studentsTabBtn" onclick="switchTab('studentsTab')">
+          👥 Student Leaderboard
+        </button>
+      </li>
+      <li class="nav-item">
+        <button class="nav-link" id="contestsTabBtn" onclick="switchTab('contestsTab')">
+          🏆 Contest Performance Report
+        </button>
+      </li>
+    </ul>
+
+    <!-- TAB 1: Student Leaderboard -->
+    <div id="studentsTab" class="tab-pane-content">
+      <div class="panel">
+        <div class="d-flex flex-wrap gap-2 justify-content-between align-items-center mb-3">
+          <div class="d-flex align-items-center gap-2">
+            <h6 class="mb-0">Class Roster</h6>
+            <span class="badge bg-secondary" id="studentCountBadge">0</span>
+          </div>
+          <div class="d-flex flex-wrap gap-2">
+            <input id="searchBox" class="form-control form-control-sm" style="width:220px" placeholder="Search name / username / reg no...">
+            <select id="ratingFilter" class="form-select form-select-sm" style="width:140px">
+              <option value="0">All Ratings</option>
+              <option value="1200">1200+</option>
+              <option value="1400">1400+</option>
+              <option value="1600">1600+</option>
+              <option value="1800">1800+</option>
+              <option value="2000">2000+</option>
+            </select>
+            <select id="statusFilter" class="form-select form-select-sm" style="width:140px">
+              <option value="all">All Status</option>
+              <option value="ok">Fetched OK</option>
+              <option value="error">Error / Not Found</option>
+            </select>
+          </div>
+        </div>
+
+        <div class="table-responsive">
+          <table class="table table-hover align-middle" id="studentTable">
+            <thead>
+              <tr>
+                <th data-key="name">Name ⬍</th>
+                <th data-key="register_no">Register No ⬍</th>
+                <th data-key="leetcode_username">Username ⬍</th>
+                <th data-key="rating">Rating ⬍</th>
+                <th data-key="ranking">Global Rank ⬍</th>
+                <th data-key="easy_solved">Easy ⬍</th>
+                <th data-key="medium_solved">Medium ⬍</th>
+                <th data-key="hard_solved">Hard ⬍</th>
+                <th data-key="total_solved">Total Solved ⬍</th>
+                <th data-key="fetch_status">Status</th>
+              </tr>
+            </thead>
+            <tbody id="studentTableBody"></tbody>
+          </table>
+        </div>
+      </div>
+    </div>
+
+    <!-- TAB 2: Contest Performance Report -->
+    <div id="contestsTab" class="tab-pane-content d-none">
+      <div class="panel mb-4">
+        <div class="d-flex flex-wrap gap-3 justify-content-between align-items-center">
+          <div>
+            <h6 class="mb-1">Select Contest</h6>
+            <p class="text-muted small mb-0">Contests attended by students in this batch</p>
+          </div>
+          <select id="contestSelect" class="form-select form-select-sm" style="width: 320px;"></select>
+        </div>
+      </div>
+
+      <div class="row g-3 mb-4" id="contestKpiCards"></div>
+
+      <div class="panel mb-4">
+        <h6 class="mb-3">Attended Participants</h6>
+        <div class="table-responsive">
+          <table class="table table-hover align-middle">
+            <thead>
+              <tr>
+                <th>Contest Rank</th>
+                <th>Name</th>
+                <th>Register No</th>
+                <th>Username</th>
+                <th>Problems Solved</th>
+                <th>Finish Time</th>
+                <th>Contest Rating</th>
+              </tr>
+            </thead>
+            <tbody id="contestParticipantsBody"></tbody>
+          </table>
+        </div>
+      </div>
+
+      <div class="panel">
+        <h6 class="mb-3">Did Not Attend This Contest</h6>
+        <div id="contestAbsenteesBox" class="d-flex flex-wrap gap-2"></div>
+      </div>
+    </div>
+
   </div>
 
 </div>
 
-<div class="spinner-overlay" id="spinnerOverlay">
-  <div class="text-center">
-    <div class="spinner-border text-light mb-2" role="status"></div>
-    <div id="spinnerText" class="text-light small">Refreshing student data...</div>
+<!-- STUDENT DETAIL MODAL -->
+<div class="modal fade" id="studentModal" tabindex="-1" aria-hidden="true">
+  <div class="modal-dialog modal-lg modal-dialog-centered">
+    <div class="modal-content">
+      <div class="modal-header">
+        <div class="d-flex align-items-center gap-3">
+          <img id="modalAvatar" src="" class="rounded-circle border" style="width: 48px; height: 48px; object-fit: cover;" onerror="this.src='https://assets.leetcode.com/users/avatars/default_avatar.png'">
+          <div>
+            <h5 class="modal-title fw-bold mb-0" id="modalStudentName">Student Profile</h5>
+            <div class="text-muted small" id="modalStudentSub">Register No • LeetCode</div>
+          </div>
+        </div>
+        <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
+      </div>
+
+      <div class="modal-body">
+        <div class="row g-3 mb-4">
+          <div class="col-sm-3 col-6">
+            <div class="card-stat">
+              <div class="label">Contest Rating</div>
+              <div class="value" id="modalRating">—</div>
+            </div>
+          </div>
+          <div class="col-sm-3 col-6">
+            <div class="card-stat">
+              <div class="label">Global Rank</div>
+              <div class="value" id="modalRank">—</div>
+            </div>
+          </div>
+          <div class="col-sm-3 col-6">
+            <div class="card-stat">
+              <div class="label">Total Solved</div>
+              <div class="value" id="modalSolved">—</div>
+            </div>
+          </div>
+          <div class="col-sm-3 col-6">
+            <div class="card-stat">
+              <div class="label">Contests</div>
+              <div class="value" id="modalContests">—</div>
+            </div>
+          </div>
+        </div>
+
+        <div class="row g-3 mb-4">
+          <div class="col-md-5">
+            <div class="chart-box h-100">
+              <h6 class="mb-3">Difficulty Breakdown</h6>
+              <canvas id="modalPieChart" height="200"></canvas>
+            </div>
+          </div>
+          <div class="col-md-7">
+            <div class="chart-box h-100">
+              <h6 class="mb-3">Rating Progression</h6>
+              <canvas id="modalLineChart" height="200"></canvas>
+            </div>
+          </div>
+        </div>
+
+        <div class="panel">
+          <h6 class="mb-3">Contest History</h6>
+          <div class="table-responsive" style="max-height: 250px; overflow-y: auto;">
+            <table class="table table-sm table-hover align-middle mb-0">
+              <thead>
+                <tr>
+                  <th>Contest</th>
+                  <th>Rank</th>
+                  <th>Solved</th>
+                  <th>Rating</th>
+                </tr>
+              </thead>
+              <tbody id="modalContestHistoryBody"></tbody>
+            </table>
+          </div>
+        </div>
+
+      </div>
+      <div class="modal-footer">
+        <a id="modalLeetcodeLink" href="#" target="_blank" class="btn btn-outline-light btn-sm">
+          Open on LeetCode ↗
+        </a>
+        <button type="button" class="btn btn-accent btn-sm" data-bs-dismiss="modal">Close</button>
+      </div>
+    </div>
   </div>
 </div>
 
