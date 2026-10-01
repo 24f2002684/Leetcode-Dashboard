@@ -1,0 +1,135 @@
+:root {
+  --bg: #0f1420;
+  --card-bg: #171d2e;
+  --card-border: #262e45;
+  --text: #e8ecf7;
+  --muted: #8b93ab;
+  --accent: #4f8cff;
+  --accent-2: #22c55e;
+  --warn: #f59e0b;
+  --danger: #ef4444;
+}
+
+body {
+  background: var(--bg);
+  color: var(--text);
+  font-family: 'Segoe UI', Roboto, -apple-system, sans-serif;
+}
+
+.navbar {
+  background: var(--card-bg) !important;
+  border-bottom: 1px solid var(--card-border);
+}
+
+.navbar-brand {
+  font-weight: 700;
+  letter-spacing: 0.3px;
+}
+
+.card-stat {
+  background: var(--card-bg);
+  border: 1px solid var(--card-border);
+  border-radius: 12px;
+  padding: 18px 20px;
+  height: 100%;
+}
+
+.card-stat .label {
+  color: var(--muted);
+  font-size: 0.78rem;
+  text-transform: uppercase;
+  letter-spacing: 0.6px;
+  margin-bottom: 6px;
+}
+
+.card-stat .value {
+  font-size: 1.7rem;
+  font-weight: 700;
+}
+
+.card-stat .sub {
+  color: var(--muted);
+  font-size: 0.8rem;
+  margin-top: 4px;
+}
+
+.panel {
+  background: var(--card-bg);
+  border: 1px solid var(--card-border);
+  border-radius: 12px;
+  padding: 18px 20px;
+}
+
+.table {
+  color: var(--text);
+}
+
+.table thead th {
+  color: var(--muted);
+  border-bottom: 1px solid var(--card-border);
+  font-size: 0.78rem;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  cursor: pointer;
+  user-select: none;
+}
+
+.table td, .table th {
+  border-color: var(--card-border);
+  vertical-align: middle;
+}
+
+.table-hover tbody tr:hover {
+  background: #1e2740;
+  cursor: pointer;
+}
+
+.badge-easy { background: #22c55e; }
+.badge-medium { background: #f59e0b; }
+.badge-hard { background: #ef4444; }
+
+.form-control, .form-select {
+  background: #0f1420;
+  border: 1px solid var(--card-border);
+  color: var(--text);
+}
+.form-control:focus, .form-select:focus {
+  background: #0f1420;
+  color: var(--text);
+  border-color: var(--accent);
+  box-shadow: 0 0 0 0.2rem rgba(79,140,255,0.15);
+}
+
+.btn-accent {
+  background: var(--accent);
+  border: none;
+  color: #fff;
+  font-weight: 600;
+}
+.btn-accent:hover {
+  background: #3d78e8;
+  color: #fff;
+}
+
+.status-pending { color: var(--muted); }
+.status-ok { color: var(--accent-2); }
+.status-error { color: var(--danger); }
+
+.chart-box {
+  background: var(--card-bg);
+  border: 1px solid var(--card-border);
+  border-radius: 12px;
+  padding: 16px;
+}
+
+.spinner-overlay {
+  position: fixed;
+  inset: 0;
+  background: rgba(15,20,32,0.75);
+  display: none;
+  align-items: center;
+  justify-content: center;
+  z-index: 2000;
+}
+
+a { color: var(--accent); }
