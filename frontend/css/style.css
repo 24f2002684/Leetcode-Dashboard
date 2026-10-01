@@ -120,6 +120,36 @@ body {
   border: 1px solid var(--card-border);
   border-radius: 12px;
   padding: 16px;
+  height: 310px;
+  max-height: 310px;
+  overflow: hidden;
+  display: flex;
+  flex-direction: column;
+}
+
+.chart-wrapper {
+  position: relative;
+  height: 240px;
+  max-height: 240px;
+  width: 100%;
+  flex: 1;
+}
+
+.chart-wrapper canvas {
+  max-height: 240px !important;
+  width: 100% !important;
+}
+
+.chart-wrapper-modal {
+  position: relative;
+  height: 200px;
+  max-height: 200px;
+  width: 100%;
+}
+
+.chart-wrapper-modal canvas {
+  max-height: 200px !important;
+  width: 100% !important;
 }
 
 .dropzone {

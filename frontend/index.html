@@ -130,19 +130,23 @@
     <!-- Visual Charts Row -->
     <div class="row g-3 mb-4">
       <div class="col-lg-4">
-        <div class="chart-box h-100">
+        <div class="chart-box">
           <h6 class="mb-3">Solved Breakdown (Class Avg)</h6>
-          <canvas id="pieChart" height="220"></canvas>
+          <div class="chart-wrapper">
+            <canvas id="pieChart"></canvas>
+          </div>
         </div>
       </div>
       <div class="col-lg-4">
-        <div class="chart-box h-100">
+        <div class="chart-box">
           <h6 class="mb-3">Top 10 Contest Ratings</h6>
-          <canvas id="barChart" height="220"></canvas>
+          <div class="chart-wrapper">
+            <canvas id="barChart"></canvas>
+          </div>
         </div>
       </div>
       <div class="col-lg-4">
-        <div class="chart-box h-100">
+        <div class="chart-box">
           <div class="d-flex justify-content-between align-items-center mb-3">
             <h6 class="mb-0">Latest Contest Overview</h6>
             <button class="btn btn-link btn-sm p-0 text-decoration-none" onclick="switchTab('contestsTab')">View Report →</button>
@@ -303,15 +307,19 @@
 
         <div class="row g-3 mb-4">
           <div class="col-md-5">
-            <div class="chart-box h-100">
+            <div class="chart-box" style="height: 270px; max-height: 270px;">
               <h6 class="mb-3">Difficulty Breakdown</h6>
-              <canvas id="modalPieChart" height="200"></canvas>
+              <div class="chart-wrapper-modal">
+                <canvas id="modalPieChart"></canvas>
+              </div>
             </div>
           </div>
           <div class="col-md-7">
-            <div class="chart-box h-100">
+            <div class="chart-box" style="height: 270px; max-height: 270px;">
               <h6 class="mb-3">Rating Progression</h6>
-              <canvas id="modalLineChart" height="200"></canvas>
+              <div class="chart-wrapper-modal">
+                <canvas id="modalLineChart"></canvas>
+              </div>
             </div>
           </div>
         </div>
